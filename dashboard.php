@@ -1,239 +1,131 @@
-<div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-handshake text-amber-500 ml-2"></i> معادلة الاستثمار</h1>
-        <a href="/" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-arrow-right"></i> العودة</a>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الفني</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background: #f0f4f8; }
+        .sidebar { position: fixed; right: 0; top: 0; width: 220px; height: 100vh; background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); z-index: 1000; overflow-y: auto; padding-bottom: 20px; }
+        .sidebar a { display: flex; align-items: center; gap: 10px; color: #94a3b8; padding: 10px 18px; text-decoration: none; transition: 0.3s; border-right: 3px solid transparent; font-size: 14px; }
+        .sidebar a:hover { background: rgba(255,255,255,0.05); color: white; border-right-color: #3b82f6; }
+        .sidebar a.active { background: rgba(255,255,255,0.08); color: white; border-right-color: #3b82f6; }
+        .sidebar .logo { padding: 16px; color: white; font-size: 18px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: center; }
+        .main-content { margin-right: 220px; padding: 20px; background: #f1f5f9; min-height: 100vh; }
+        .table-wrapper { overflow-x: auto; }
+        .table-wrapper table { min-width: 1000px; }
+        .table-row:hover { background: #f8fafc; }
+        .status-badge { padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .status-pending { background: #fef3c7; color: #d97706; }
+        .status-inspection { background: #dbeafe; color: #2563eb; }
+        .status-suspended { background: #fee2e2; color: #dc2626; }
+        .status-repairing { background: #fef3c7; color: #d97706; }
+        .status-ready { background: #d1fae5; color: #059669; }
+        .status-ready_for_pickup { background: #d1fae5; color: #059669; }
+        .status-delivered { background: #e2e8f0; color: #64748b; }
+        .status-cancelled { background: #fee2e2; color: #dc2626; }
+        .btn { padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .btn-yellow { background: #f59e0b; color: white; }
+        .btn-yellow:hover { background: #d97706; }
+        .btn-green { background: #22c55e; color: white; }
+        .btn-green:hover { background: #16a34a; }
+        .btn-amber { background: #f59e0b; color: white; }
+        .btn-amber:hover { background: #d97706; }
+        .btn-purple { background: #8b5cf6; color: white; }
+        .btn-purple:hover { background: #7c3aed; }
+        .btn-blue { background: #3b82f6; color: white; }
+        .btn-blue:hover { background: #2563eb; }
+        .input-part { border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; font-size: 12px; width: 120px; }
+        .input-part:focus { outline: none; border-color: #3b82f6; }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-right: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">🔧 نظام الصيانة</div>
+        <a href="/technician-dashboard" class="active">📋 أجهزتي</a>
+        <a href="/chat">💬 الشات</a>
+        <div style="border-top:1px solid rgba(255,255,255,0.06); margin:12px 16px 0;"></div>
+        <div style="padding:12px 18px; color:#94a3b8; font-size:13px;">👤 <?php echo $_SESSION['full_name'] ?? 'فني'; ?><span style="font-size:10px; color:#64748b;">(فني)</span></div>
+        <a href="/logout" style="color:#64748b; font-size:13px;">🚪 خروج</a>
     </div>
 
-    <?php if (isset($_SESSION['flash_message'])): ?>
-        <div class="p-4 rounded-lg mb-4 border-r-4 <?php echo ($_SESSION['flash_type'] ?? 'success') == 'success' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-red-50 border-red-500 text-red-700'; ?>">
-            <?php echo $_SESSION['flash_message']; unset($_SESSION['flash_message'], $_SESSION['flash_type']); ?>
-        </div>
-    <?php endif; ?>
-
-    <!-- كروت المعادلة -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-xl border-r-4 border-amber-500 shadow-sm">
-            <p class="text-xs text-amber-700 font-bold">💰 معادلة الاستثمار</p>
-            <p class="text-xl font-bold text-amber-800"><?php echo number_format($stats->investment ?? 0, 2); ?> ج.م</p>
-        </div>
-        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border-r-4 border-green-500 shadow-sm">
-            <p class="text-xs text-green-700 font-bold">📈 صافي الأرباح</p>
-            <p class="text-xl font-bold text-green-800"><?php echo number_format($stats->net_profit ?? 0, 2); ?> ج.م</p>
-        </div>
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-r-4 border-blue-500 shadow-sm">
-            <p class="text-xs text-blue-700 font-bold">🏦 إجمالي الأصول</p>
-            <p class="text-xl font-bold text-blue-800"><?php echo number_format($stats->total_assets ?? 0, 2); ?> ج.م</p>
-        </div>
-        <div class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-xl border-r-4 border-red-500 shadow-sm">
-            <p class="text-xs text-red-700 font-bold">📊 إجمالي الالتزامات</p>
-            <p class="text-xl font-bold text-red-800"><?php echo number_format($stats->total_liabilities ?? 0, 2); ?> ج.م</p>
-        </div>
-    </div>
-
-    <!-- تفاصيل الحسابات -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-indigo-400 text-center">
-            <p class="text-[10px] text-gray-500">💰 الخزنة</p>
-            <p class="text-sm font-bold text-indigo-600"><?php echo number_format($stats->cash ?? 0, 2); ?></p>
-        </div>
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-purple-400 text-center">
-            <p class="text-[10px] text-gray-500">🏦 البنك</p>
-            <p class="text-sm font-bold text-purple-600"><?php echo number_format($stats->bank ?? 0, 2); ?></p>
-        </div>
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-teal-400 text-center">
-            <p class="text-[10px] text-gray-500">📦 المخزون</p>
-            <p class="text-sm font-bold text-teal-600"><?php echo number_format($stats->inventory ?? 0, 2); ?></p>
-        </div>
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-amber-400 text-center">
-            <p class="text-[10px] text-gray-500">👤 ديون العملاء</p>
-            <p class="text-sm font-bold text-amber-600"><?php echo number_format($stats->customer_debts ?? 0, 2); ?></p>
-        </div>
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-red-400 text-center">
-            <p class="text-[10px] text-gray-500">🏷️ ديون الموردين</p>
-            <p class="text-sm font-bold text-red-600"><?php echo number_format($stats->supplier_debts ?? 0, 2); ?></p>
-        </div>
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-pink-400 text-center">
-            <p class="text-[10px] text-gray-500">🔄 أرصدة مختلطة</p>
-            <p class="text-sm font-bold text-pink-600"><?php echo number_format($stats->mixed_balance ?? 0, 2); ?></p>
-        </div>
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-orange-400 text-center">
-            <p class="text-[10px] text-gray-500">📝 المصروفات</p>
-            <p class="text-sm font-bold text-orange-600"><?php echo number_format($stats->expenses ?? 0, 2); ?></p>
-        </div>
-        <div class="bg-gray-50 p-2 rounded-lg border-r-4 border-gray-400 text-center">
-            <p class="text-[10px] text-gray-500">💵 رأس المال</p>
-            <p class="text-sm font-bold text-gray-600"><?php echo number_format($stats->initial_capital ?? 0, 2); ?></p>
-        </div>
-    </div>
-
-    <!-- ===== العمليات (أزرار منتظمة) ===== -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-
-        <!-- العمود 1: رأس المال + مشتريات + مبيعات -->
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-            <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="fas fa-coins text-blue-500 ml-1"></i> رأس المال</h3>
-            <?php if ($stats->capital_added): ?>
-                <div class="bg-green-50 p-2 rounded-lg text-xs text-green-700 mb-3 text-center">✅ تم الإيداع</div>
-            <?php else: ?>
-                <form method="POST" action="/investment/initial-capital" class="flex flex-wrap gap-2">
-                    <input type="number" step="0.01" name="amount" placeholder="المبلغ" class="flex-1 min-w-[80px] border rounded-lg px-2 py-1.5 text-sm" required>
-                    <select name="type" class="border rounded-lg px-2 py-1.5 text-sm"><option value="cash">خزنة</option><option value="bank">بنك</option></select>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm transition">إيداع</button>
-                </form>
-            <?php endif; ?>
-
-            <h3 class="font-bold text-gray-700 text-sm mb-3 mt-4"><i class="fas fa-shopping-cart text-teal-500 ml-1"></i> مشتريات</h3>
-            <form method="POST" action="/investment/purchase" class="flex flex-wrap gap-2">
-                <input type="number" step="0.01" name="amount" placeholder="المبلغ" class="flex-1 min-w-[80px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <select name="payment_type" class="border rounded-lg px-2 py-1.5 text-sm"><option value="cash">كاش</option><option value="supplier_credit">آجل</option></select>
-                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-lg text-sm transition">شراء</button>
-            </form>
-
-            <h3 class="font-bold text-gray-700 text-sm mb-3 mt-4"><i class="fas fa-tag text-green-500 ml-1"></i> مبيعات</h3>
-            <form method="POST" action="/investment/sell" class="flex flex-wrap gap-2">
-                <input type="number" step="0.01" name="cost" placeholder="التكلفة" class="flex-1 min-w-[70px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <input type="number" step="0.01" name="selling_price" placeholder="سعر البيع" class="flex-1 min-w-[70px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm transition">بيع</button>
-            </form>
+    <div class="main-content">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">🔧 لوحة تحكم الفني</h1>
+                <p class="text-sm text-gray-500">مرحباً، <?php echo $technician['full_name'] ?? $_SESSION['full_name'] ?? 'فني'; ?> | <?php echo date('Y-m-d h:i A'); ?></p>
+            </div>
+            <a href="/" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition">← الرئيسية</a>
         </div>
 
-        <!-- العمود 2: مصروفات + ديون العملاء -->
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-            <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="fas fa-receipt text-orange-500 ml-1"></i> مصروفات</h3>
-            <form method="POST" action="/investment/expense" class="flex flex-wrap gap-2 mb-4">
-                <input type="text" name="description" placeholder="البيان" class="flex-1 min-w-[60px] border rounded-lg px-2 py-1.5 text-sm">
-                <input type="number" step="0.01" name="amount" placeholder="المبلغ" class="flex-1 min-w-[70px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-1.5 rounded-lg text-sm transition">تسجيل</button>
-            </form>
-
-            <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="fas fa-user text-amber-500 ml-1"></i> ديون العملاء</h3>
-            <form method="POST" action="/investment/customer-debt" class="flex flex-wrap gap-2 mb-2">
-                <input type="text" name="customer_name" placeholder="الاسم" class="flex-1 min-w-[60px] border rounded-lg px-2 py-1.5 text-sm">
-                <input type="number" step="0.01" name="amount" placeholder="المبلغ" class="flex-1 min-w-[70px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1.5 rounded-lg text-sm transition">إضافة</button>
-            </form>
-            <form method="POST" action="/investment/collect-debt" class="flex flex-wrap gap-2">
-                <input type="number" step="0.01" name="amount" placeholder="تحصيل" class="flex-1 min-w-[70px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-sm transition">تحصيل</button>
-            </form>
-        </div>
-
-        <!-- العمود 3: موردين + بنك -->
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-            <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="fas fa-truck text-red-500 ml-1"></i> ديون الموردين</h3>
-            <form method="POST" action="/investment/pay-supplier" class="flex flex-wrap gap-2 mb-4">
-                <input type="number" step="0.01" name="amount" placeholder="مبلغ السداد" class="flex-1 min-w-[70px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm transition">سداد</button>
-            </form>
-
-            <h3 class="font-bold text-gray-700 text-sm mb-3"><i class="fas fa-university text-purple-500 ml-1"></i> البنك</h3>
-            <form method="POST" action="/investment/bank-deposit" class="flex flex-wrap gap-2">
-                <input type="number" step="0.01" name="amount" placeholder="المبلغ" class="flex-1 min-w-[70px] border rounded-lg px-2 py-1.5 text-sm" required>
-                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-lg text-sm transition">إيداع</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===== الشركاء ===== -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-        <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 flex flex-wrap justify-between items-center">
-            <h3 class="font-semibold text-gray-700 text-sm"><i class="fas fa-users text-blue-500 ml-2"></i> توزيع الأرباح على الشركاء</h3>
-            <span class="text-xs text-gray-500">صافي الربح: <?php echo number_format($stats->net_profit ?? 0, 2); ?> ج.م</span>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-3 py-2 text-right text-xs text-gray-500">#</th>
-                        <th class="px-3 py-2 text-right text-xs text-gray-500">اسم الشريك</th>
-                        <th class="px-3 py-2 text-right text-xs text-gray-500">المساهمة</th>
-                        <th class="px-3 py-2 text-right text-xs text-gray-500">نسبة الملكية</th>
-                        <th class="px-3 py-2 text-right text-xs text-gray-500">ربح الشهر</th>
-                        <th class="px-3 py-2 text-right text-xs text-gray-500">الدور</th>
-                        <th class="px-3 py-2 text-right text-xs text-gray-500">الإجراء</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $i = 1; foreach ($partnersData as $id => $data): ?>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-3 py-2 text-center"><?php echo $i++; ?></td>
-                            <td class="px-3 py-2 font-medium"><?php echo $data['name']; ?></td>
-                            <td class="px-3 py-2"><?php echo number_format($data['contribution'], 2); ?></td>
-                            <td class="px-3 py-2"><?php echo $data['percentage']; ?>%</td>
-                            <td class="px-3 py-2 font-bold text-green-600">
-                                <?php 
-                                $share = 0;
-                                foreach ($distributions as $d) {
-                                    if ($d->name == $data['name']) { $share = $d->share; break; }
-                                }
-                                echo number_format($share, 2);
-                                ?>
-                            </td>
-                            <td class="px-3 py-2">
-                                <?php if ($data['is_manager']): ?>
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700">مدير</span>
-                                <?php else: ?>
-                                    <span class="text-gray-400 text-[10px]">شريك</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="px-3 py-2">
-                                <button onclick="openEditModal(<?php echo $id; ?>)" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-edit"></i></button>
-                                <form action="/investment/partner/<?php echo $id; ?>" method="POST" class="inline-block" onsubmit="return confirm('حذف الشريك؟')">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i></button>
-                                </form>
-                            </td>
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="table-wrapper">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">#</th>
+                            <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">الكود</th>
+                            <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">الجهاز</th>
+                            <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">العميل</th>
+                            <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">العطل</th>
+                            <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">الحالة</th>
+                            <th class="px-4 py-3 text-right text-xs text-gray-500 font-medium">الإجراء</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($devices)): ?>
+                            <tr><td colspan="7" class="px-6 py-8 text-center text-gray-400">🎉 مفيش أجهزة حالياً</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($devices as $device): ?>
+                                <?php
+                                $statusClass = 'status-' . ($device['status_slug'] ?? 'pending');
+                                $statusText = $device['status_name'] ?? 'معلق';
+                                $diagnosed = $device['diagnosed_issue'] ?? 'لم يتم التشخيص بعد';
+                                ?>
+                                <tr class="table-row transition">
+                                    <td class="px-4 py-3 text-center"><?php echo $device['id']; ?></td>
+                                    <td class="px-4 py-3 font-mono text-sm"><?php echo $device['device_code']; ?></td>
+                                    <td class="px-4 py-3"><span class="font-medium"><?php echo $device['brand'] ?? '؟'; ?></span> <span class="text-gray-500 text-xs"><?php echo $device['model'] ?? ''; ?></span></td>
+                                    <td class="px-4 py-3"><div class="font-medium"><?php echo $device['customer_name'] ?? '—'; ?></div><div class="text-xs text-gray-500"><?php echo $device['customer_phone'] ?? '—'; ?></div></td>
+                                    <td class="px-4 py-3"><div class="text-sm truncate max-w-[120px]" title="<?php echo htmlspecialchars($device['reported_issue'] ?? ''); ?>"><?php echo $device['reported_issue'] ?? '—'; ?></div><div class="text-xs text-blue-600 truncate max-w-[120px]" title="<?php echo htmlspecialchars($diagnosed); ?>">التشخيص: <?php echo $diagnosed; ?></div></td>
+                                    <td class="px-4 py-3"><span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span><?php if (!empty($device['waiting_for_part'])): ?><div class="text-xs text-amber-600 mt-1">⏳ <?php echo $device['waiting_for_part']; ?></div><?php endif; ?></td>
+                                    <td class="px-4 py-3">
+                                        <?php if ($device['status_slug'] == 'pending'): ?>
+                                            <form method="POST" action="/technician/start-inspection" class="inline"><input type="hidden" name="device_id" value="<?php echo $device['id']; ?>"><button type="submit" class="btn btn-yellow">🔍 بدء الفحص</button></form>
+                                        <?php elseif ($device['status_slug'] == 'inspection'): ?>
+                                            <form method="POST" action="/technician/request-part" class="flex items-center gap-1"><input type="hidden" name="device_id" value="<?php echo $device['id']; ?>"><input type="text" name="part_name" placeholder="اسم القطعة..." class="input-part" required><button type="submit" class="btn btn-amber">⏳ طلب</button></form>
+                                        <?php elseif ($device['status_slug'] == 'suspended'): ?>
+                                            <span class="text-sm text-amber-600">⏳ في انتظار: <?php echo $device['waiting_for_part'] ?? ''; ?></span>
+                                            <form method="POST" action="/technician/start-repair" class="inline"><input type="hidden" name="device_id" value="<?php echo $device['id']; ?>"><button type="submit" class="btn btn-blue">🔧 استئناف</button></form>
+                                        <?php elseif ($device['status_slug'] == 'repairing'): ?>
+                                            <form method="POST" action="/technician/complete-repair" class="inline"><input type="hidden" name="device_id" value="<?php echo $device['id']; ?>"><button type="submit" class="btn btn-green">✅ تم الإصلاح</button></form>
+                                            <a href="/technician/checklist/<?php echo $device['id']; ?>" class="btn btn-purple inline-block mt-1"><i class="fas fa-clipboard-check"></i> فحص</a>
+                                        <?php elseif ($device['status_slug'] == 'ready' || $device['status_slug'] == 'ready_for_pickup'): ?>
+                                            <span class="text-sm text-green-600">✅ في انتظار المدير</span>
+                                        <?php elseif ($device['status_slug'] == 'delivered'): ?>
+                                            <span class="text-sm text-gray-400">✅ تم التسليم</span>
+                                        <?php elseif ($device['status_slug'] == 'cancelled'): ?>
+                                            <span class="text-sm text-red-600">❌ ملغي</span>
+                                        <?php else: ?>
+                                            <span class="text-sm text-gray-400">—</span>
+                                        <?php endif; ?>
+                                        <div class="mt-1"><a href="/devices/<?php echo $device['id']; ?>" class="text-blue-600 hover:text-blue-800 text-xs"><i class="fas fa-eye"></i> عرض</a></div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <!-- إضافة شريك -->
-        <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-            <form method="POST" action="/investment/partner" class="grid grid-cols-1 md:grid-cols-5 gap-2">
-                <input type="text" name="name" placeholder="اسم الشريك" class="border rounded-lg px-3 py-1.5 text-sm" required>
-                <input type="number" step="0.01" name="contribution" placeholder="المساهمة" class="border rounded-lg px-3 py-1.5 text-sm" required>
-                <select name="is_manager" class="border rounded-lg px-3 py-1.5 text-sm"><option value="0">شريك</option><option value="1">مدير</option></select>
-                <input type="number" step="0.01" name="monthly_salary" placeholder="الراتب" class="border rounded-lg px-3 py-1.5 text-sm" value="0">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded-lg text-sm transition">إضافة</button>
-            </form>
-        </div>
-    </div>
-</div>
 
-<!-- مودال التعديل -->
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-user-edit text-blue-500 ml-2"></i> تعديل الشريك</h3>
-            <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-        </div>
-        <form id="editForm" method="POST">
-            <input type="hidden" name="_method" value="PUT">
-            <div class="mb-3"><label class="block text-sm font-medium text-gray-700">الاسم</label><input type="text" name="name" id="edit_name" class="w-full border rounded-lg px-3 py-2" required></div>
-            <div class="mb-3"><label class="block text-sm font-medium text-gray-700">المساهمة</label><input type="number" step="0.01" name="contribution" id="edit_contribution" class="w-full border rounded-lg px-3 py-2" required></div>
-            <div class="mb-3 flex items-center gap-2"><input type="checkbox" name="is_manager" id="edit_is_manager" class="w-4 h-4"><label class="text-sm text-gray-700">مدير</label></div>
-            <div class="mb-3"><label class="block text-sm font-medium text-gray-700">الراتب الشهري</label><input type="number" step="0.01" name="monthly_salary" id="edit_salary" class="w-full border rounded-lg px-3 py-2"></div>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">تحديث</button>
-        </form>
+        <div class="mt-4 text-center text-sm text-gray-400">💡 اضغط "بدء الفحص" لتشخيص العطل، أو "طلب قطع غيار" إذا كنت محتاج قطعة، أو "تم الإصلاح" بعد الانتهاء</div>
     </div>
-</div>
-
-<script>
-    function openEditModal(id) {
-        fetch('/investment/partner/' + id + '?edit=true')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('edit_name').value = data.partner.name;
-                    document.getElementById('edit_contribution').value = data.partner.contribution;
-                    document.getElementById('edit_is_manager').checked = data.partner.is_manager;
-                    document.getElementById('edit_salary').value = data.partner.monthly_salary || 0;
-                    document.getElementById('editForm').action = '/investment/partner/' + id;
-                    document.getElementById('editModal').classList.remove('hidden');
-                }
-            });
-    }
-    function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
-    document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
-</script>
+</body>
+</html>

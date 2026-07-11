@@ -1,145 +1,165 @@
 <div class="bg-white rounded-xl shadow-sm p-6 max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
+    <!-- رأس الفاتورة -->
+    <div class="flex justify-between items-start border-b border-gray-200 pb-4 mb-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">📄 تفاصيل القسط</h1>
-            <p class="text-sm text-gray-500">#<?php echo $installment['id']; ?></p>
+            <h1 class="text-2xl font-bold text-gray-800">فاتورة</h1>
+            <p class="text-sm text-gray-500">#<?php echo $sale['invoice_number']; ?></p>
         </div>
-        <a href="/installments" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-arrow-left ml-1"></i> العودة</a>
-    </div>
-
-    <!-- عرض رسائل النجاح أو الخطأ -->
-    <?php if (isset($_GET['success'])): ?>
-        <div class="bg-green-100 border-r-4 border-green-500 text-green-700 p-3 mb-4 rounded-lg">
-            <?php echo htmlspecialchars($_GET['success']); ?>
-        </div>
-    <?php endif; ?>
-    <?php if (isset($_GET['error'])): ?>
-        <div class="bg-red-100 border-r-4 border-red-500 text-red-700 p-3 mb-4 rounded-lg">
-            ⚠️ <?php echo htmlspecialchars($_GET['error']); ?>
-        </div>
-    <?php endif; ?>
-
-    <!-- معلومات القسط -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div>
-            <p class="text-xs text-gray-400">العميل</p>
-            <p class="font-bold"><?php echo $installment['customer_name']; ?></p>
-            <p class="text-sm text-gray-500"><?php echo $installment['customer_phone']; ?></p>
-        </div>
-        <div>
-            <p class="text-xs text-gray-400">الجهاز</p>
-            <p class="font-bold"><?php echo $installment['device_name']; ?></p>
-        </div>
-        <div>
-            <p class="text-xs text-gray-400">الحالة</p>
-            <p>
-                <span class="px-2 py-1 rounded-full text-xs font-medium 
-                    <?php echo $installment['status'] == 'active' ? 'bg-blue-100 text-blue-700' : 
-                           ($installment['status'] == 'completed' ? 'bg-green-100 text-green-700' : 
-                           ($installment['status'] == 'defaulted' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700')); ?>">
-                    <?php echo $installment['status'] == 'active' ? 'نشط' : 
-                           ($installment['status'] == 'completed' ? 'مكتمل' : 
-                           ($installment['status'] == 'defaulted' ? 'متأخر' : 'ملغي')); ?>
+        <div class="text-left">
+            <div class="text-sm text-gray-500">التاريخ: <?php echo date('Y-m-d h:i A', strtotime($sale['sale_date'])); ?></div>
+            <div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium 
+                    <?php echo $sale['status'] == 'completed' ? 'bg-green-100 text-green-700' : 
+                           ($sale['status'] == 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'); ?>">
+                    <?php echo $sale['status'] == 'completed' ? '✅ مكتملة' : 
+                           ($sale['status'] == 'pending' ? '⏳ معلقة' : '💰 مدفوع جزئي'); ?>
                 </span>
-            </p>
-        </div>
-        <div>
-            <p class="text-xs text-gray-400">المتبقي</p>
-            <p class="font-bold <?php echo $installment['remaining_amount'] > 0 ? 'text-red-600' : 'text-green-600'; ?>">
-                <?php echo number_format($installment['remaining_amount'], 2); ?> جنيه
-            </p>
+            </div>
         </div>
     </div>
 
-    <!-- نموذج إضافة دفعة -->
-    <div class="bg-gray-50 p-4 rounded-lg mb-6">
-        <h3 class="font-semibold text-gray-700 mb-3"><i class="fas fa-plus-circle text-green-500"></i> تسجيل دفعة</h3>
-        <form method="POST" action="/installments/add-payment" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <input type="hidden" name="installment_id" value="<?php echo $installment['id']; ?>">
-            <div>
-                <label class="text-xs text-gray-500">المبلغ</label>
-                <input type="number" step="0.01" name="amount" class="w-full border rounded-lg px-2 py-1 text-sm" required>
-            </div>
-            <div>
-                <label class="text-xs text-gray-500">غرامة (اختياري)</label>
-                <input type="number" step="0.01" name="penalty" value="0" class="w-full border rounded-lg px-2 py-1 text-sm">
-            </div>
-            <div>
-                <label class="text-xs text-gray-500">ملاحظات</label>
-                <input type="text" name="notes" placeholder="ملاحظات" class="w-full border rounded-lg px-2 py-1 text-sm">
-            </div>
-            <div class="flex items-end">
-                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm transition">
-                    <i class="fas fa-check"></i> تسجيل
-                </button>
-            </div>
-        </form>
+    <!-- معلومات العميل -->
+    <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+        <div><span class="text-gray-500">العميل:</span> <strong><?php echo $sale['customer_name'] ?? 'عميل نقدي'; ?></strong></div>
+        <div><span class="text-gray-500">الهاتف:</span> <?php echo $sale['customer_phone'] ?? '—'; ?></div>
+        <div><span class="text-gray-500">طريقة الدفع:</span> 
+            <?php
+            $methods = ['cash' => 'كاش', 'card' => 'بطاقة', 'wallet' => 'محفظة', 'bank_transfer' => 'تحويل', 'installment' => 'تقسيط'];
+            echo $methods[$sale['payment_method']] ?? $sale['payment_method'];
+            ?>
+        </div>
+        <div><span class="text-gray-500">بواسطة:</span> <?php echo $sale['created_by_name']; ?></div>
     </div>
 
-    <!-- جدول الأقساط -->
-    <div class="overflow-x-auto">
+    <!-- جدول الأصناف -->
+    <div class="overflow-x-auto mb-4">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-4 py-2 text-right text-xs text-gray-500">#</th>
-                    <th class="px-4 py-2 text-right text-xs text-gray-500">تاريخ الاستحقاق</th>
-                    <th class="px-4 py-2 text-right text-xs text-gray-500">المبلغ</th>
-                    <th class="px-4 py-2 text-right text-xs text-gray-500">المدفوع</th>
-                    <th class="px-4 py-2 text-right text-xs text-gray-500">الغرامة</th>
-                    <th class="px-4 py-2 text-right text-xs text-gray-500">الحالة</th>
-                    <th class="px-4 py-2 text-right text-xs text-gray-500">تاريخ السداد</th>
+                    <th class="px-4 py-2 text-right text-xs text-gray-500">الوصف</th>
+                    <th class="px-4 py-2 text-center text-xs text-gray-500">الكمية</th>
+                    <th class="px-4 py-2 text-center text-xs text-gray-500">سعر الوحدة</th>
+                    <th class="px-4 py-2 text-center text-xs text-gray-500">الإجمالي</th>
                 </tr>
             </thead>
             <tbody>
-                <?php
-                $today = new \DateTime();
-                foreach ($payments as $p):
-                    $due = new \DateTime($p['due_date']);
-                    $paidAmount = $p['paid_amount'] ?? 0;
-                    $rowClass = '';
-                    $statusText = '';
-
-                    if ($p['is_paid'] && $paidAmount >= $p['amount']) {
-                        $rowClass = 'bg-green-50';
-                        $statusText = '✅ مدفوع';
-                    } elseif ($paidAmount > 0 && $paidAmount < $p['amount']) {
-                        $rowClass = 'bg-yellow-50';
-                        $statusText = '⏳ دفعة جزئية';
-                    } elseif ($due < $today) {
-                        $rowClass = 'bg-red-50';
-                        $statusText = '⚠️ متأخر';
-                    } else {
-                        $statusText = '⏳ مستحق';
-                    }
-                ?>
-                    <tr class="hover:bg-gray-50 transition <?php echo $rowClass; ?>">
-                        <td class="px-4 py-2"><?php echo $p['payment_number']; ?></td>
-                        <td class="px-4 py-2"><?php echo date('Y-m-d', strtotime($p['due_date'])); ?></td>
-                        <td class="px-4 py-2 font-bold"><?php echo number_format($p['amount'], 2); ?></td>
-                        <td class="px-4 py-2"><?php echo $paidAmount > 0 ? number_format($paidAmount, 2) : '—'; ?></td>
-                        <td class="px-4 py-2"><?php echo $p['penalty'] > 0 ? number_format($p['penalty'], 2) : '—'; ?></td>
-                        <td class="px-4 py-2"><?php echo $statusText; ?></td>
-                        <td class="px-4 py-2 text-sm text-gray-400"><?php echo $p['payment_date'] ? date('Y-m-d', strtotime($p['payment_date'])) : '—'; ?></td>
+                <?php $i = 1; foreach ($items as $item): ?>
+                    <tr>
+                        <td class="px-4 py-2"><?php echo $i++; ?></td>
+                        <td class="px-4 py-2">
+                            <?php echo $item['description']; ?>
+                            <?php if ($item['item_type'] == 'part'): ?>
+                                <span class="text-xs text-blue-600">(قطعة غيار)</span>
+                            <?php else: ?>
+                                <span class="text-xs text-purple-600">(خدمة)</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-4 py-2 text-center"><?php echo $item['quantity']; ?></td>
+                        <td class="px-4 py-2 text-center"><?php echo number_format($item['unit_price'], 2); ?></td>
+                        <td class="px-4 py-2 text-center font-bold"><?php echo number_format($item['total_price'], 2); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- ملخص -->
-    <div class="mt-4 text-sm">
-        <span class="text-gray-500">المدفوع الكلي:</span>
-        <span class="font-bold text-green-600"><?php echo number_format($paidTotal, 2); ?> جنيه</span>
-        <span class="mx-2">|</span>
-        <span class="text-gray-500">المتبقي:</span>
-        <span class="font-bold <?php echo $installment['remaining_amount'] > 0 ? 'text-red-600' : 'text-green-600'; ?>">
-            <?php echo number_format($installment['remaining_amount'], 2); ?> جنيه
-        </span>
-    </div>
-
-    <?php if ($installment['notes']): ?>
-        <div class="mt-4 text-sm text-gray-500 border-t pt-4">
-            <span class="font-medium">ملاحظات:</span> <?php echo $installment['notes']; ?>
+    <!-- الأجهزة المرتبطة -->
+    <?php if (!empty($devices)): ?>
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3"><i class="fas fa-mobile-alt text-green-500"></i> الأجهزة المرتبطة</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-right text-xs text-gray-500">#</th>
+                            <th class="px-4 py-2 text-right text-xs text-gray-500">الكود</th>
+                            <th class="px-4 py-2 text-right text-xs text-gray-500">الجهاز</th>
+                            <th class="px-4 py-2 text-right text-xs text-gray-500">الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($devices as $d): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-2"><?php echo $d['id']; ?></td>
+                                <td class="px-4 py-2 font-mono text-sm"><?php echo $d['device_code']; ?></td>
+                                <td class="px-4 py-2"><?php echo $d['brand'] . ' ' . $d['model']; ?></td>
+                                <td class="px-4 py-2">
+                                    <a href="/devices/<?php echo $d['id']; ?>" class="text-blue-600 hover:text-blue-800 text-sm">عرض</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     <?php endif; ?>
+
+    <!-- الإجماليات -->
+    <div class="border-t border-gray-200 pt-4 space-y-1 text-sm">
+        <div class="flex justify-between">
+            <span class="text-gray-500">المجموع الفرعي</span>
+            <span><?php echo number_format($sale['subtotal'], 2); ?></span>
+        </div>
+        <?php if ($sale['discount'] > 0): ?>
+            <div class="flex justify-between">
+                <span class="text-gray-500">الخصم</span>
+                <span class="text-red-600">-<?php echo number_format($sale['discount'], 2); ?></span>
+            </div>
+        <?php endif; ?>
+        <div class="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+            <span>الإجمالي</span>
+            <span><?php echo number_format($sale['total_amount'], 2); ?> جنيه</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-500">المدفوع</span>
+            <span class="text-green-600"><?php echo number_format($sale['paid_amount'] ?? 0, 2); ?></span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-500">المتبقي</span>
+            <span class="<?php echo ($sale['remaining_amount'] ?? 0) > 0 ? 'text-red-600 font-bold' : 'text-green-600'; ?>">
+                <?php echo number_format($sale['remaining_amount'] ?? 0, 2); ?>
+            </span>
+        </div>
+    </div>
+
+    <?php if ($sale['notes']): ?>
+        <div class="mt-4 text-sm text-gray-500 border-t border-gray-200 pt-4">
+            <span class="font-medium">ملاحظات:</span> <?php echo $sale['notes']; ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- ===== أزرار الإجراء (مع زر التعديل) ===== -->
+    <div class="flex gap-2 flex-wrap mt-4 no-print">
+        <?php if ($sale['status'] != 'completed'): ?>
+            <a href="/sales/edit/<?php echo $sale['id']; ?>" 
+               class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg text-sm transition">
+                <i class="fas fa-edit"></i> تعديل الفاتورة
+            </a>
+        <?php endif; ?>
+        
+        <a href="/sales/print/<?php echo $sale['id']; ?>" target="_blank" 
+           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm transition">
+            <i class="fas fa-print"></i> طباعة
+        </a>
+        
+        <a href="/sales/whatsapp/<?php echo $sale['id']; ?>" target="_blank" 
+           class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm transition">
+            <i class="fab fa-whatsapp"></i> واتساب
+        </a>
+        
+        <?php if ($sale['status'] != 'completed'): ?>
+            <a href="/sales/pending" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg text-sm transition">
+                <i class="fas fa-hand-holding-usd"></i> تسجيل دفعة
+            </a>
+        <?php endif; ?>
+        
+        <a href="/sales" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg text-sm transition">
+            <i class="fas fa-arrow-right"></i> العودة
+        </a>
+    </div>
+
+    <div class="mt-4 text-center text-xs text-gray-400 border-t border-gray-200 pt-4">
+        شكراً لتعاملك معنا
+    </div>
 </div>
